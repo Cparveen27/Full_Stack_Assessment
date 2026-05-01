@@ -1,0 +1,128 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Admin Panel</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+
+    <style>
+        .nav {
+            background: #6c63ff;
+            padding: 15px;
+            color: white;
+        }
+
+        .nav a {
+            margin: 15px;
+            color: white;
+            cursor: pointer;
+            text-decoration: none;
+            font-weight: bold;
+        }
+
+        .section {
+            display: none;
+            padding: 20px;
+        }
+
+        .card {
+            background: white;
+            padding: 15px;
+            margin: 10px;
+            border-radius: 10px;
+            box-shadow: 0px 2px 8px rgba(0,0,0,0.1);
+        }
+
+        button {
+            margin-top: 10px;
+        }
+    </style>
+</head>
+<body>
+
+<!-- NAVBAR -->
+<div class="nav">
+    <a onclick="showSection('dashboard')">Dashboard</a>
+    <a onclick="showSection('addOpp')">Add Opportunity</a>
+    <a onclick="showSection('viewOpp')">View Opportunities</a>
+    <a href="/logout">Logout</a>
+</div>
+
+<!-- ADD OPPORTUNITY (DEFAULT PAGE) -->
+<div id="addOpp" class="section" style="display:block;">
+    <h2>Add Opportunity</h2>
+
+    <form action="/add" method="POST">
+        <input type="text" name="name" placeholder="Opportunity Name" required><br>
+        <input type="text" name="duration" placeholder="Duration" required><br>
+        <input type="text" name="desc" placeholder="Description" required><br>
+        <button type="submit">Add</button>
+    </form>
+</div>
+
+<!-- VIEW OPPORTUNITIES -->
+<div id="viewOpp" class="section">
+    <h2>Your Opportunities</h2>
+    <div id="data"></div>
+</div>
+
+<!-- DASHBOARD -->
+<div id="dashboard" class="section">
+    <h2>Welcome to Dashboard</h2>
+    <p>Use the menu to manage opportunities.</p>
+</div>
+
+<script>
+
+// 🔹 Switch Sections
+function showSection(sectionId) {
+    document.querySelectorAll(".section").forEach(sec => {
+        sec.style.display = "none";
+    });
+
+    document.getElementById(sectionId).style.display = "block";
+
+    if (sectionId === "viewOpp") {
+        loadData();
+    }
+}
+
+
+// 🔹 Load Opportunities
+function loadData() {
+    fetch("/get_data")
+    .then(res => res.json())
+    .then(data => {
+        let output = "";
+
+        if (data.length === 0) {
+            output = "<p>No opportunities added yet</p>";
+        } else {
+            data.forEach(item => {
+                output += `
+                    <div class="card">
+                        <h3>${item.name}</h3>
+                        <p><b>Duration:</b> ${item.duration}</p>
+                        <p>${item.desc}</p>
+
+                        <button onclick="applyOpportunity('${item.name}')">
+                            Apply
+                        </button>
+                    </div>
+                `;
+            });
+        }
+
+        document.getElementById("data").innerHTML = output;
+    });
+}
+
+
+// 🔹 Apply Button
+function applyOpportunity(name) {
+    alert("You applied for " + name);
+}
+
+</script>
+
+</body>
+</html>
